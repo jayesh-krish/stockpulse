@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockPulse — Trading Signal Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+/* === DESIGN TOKENS === */
+:root,[data-theme="light"]{
+  --color-bg:#f7f6f2;--color-surface:#f9f8f5;--color-surface-2:#fbfbf9;
+  --color-surface-offset:#f3f0ec;--color-surface-dynamic:#e6e4df;
+  --color-divider:#dcd9d5;--color-border:#d4d1ca;
+  --color-text:#28251d;--color-text-muted:#7a7974;--color-text-faint:#bab9b4;
+  --color-primary:#01696f;--color-primary-hover:#0c4e54;--color-primary-highlight:#cedcd8;
+  --color-success:#437a22;--color-success-hover:#2e5c10;--color-success-highlight:#d4dfcc;
+  --color-error:#a12c7b;--color-error-hover:#7d1e5e;--color-error-highlight:#e0ced7;
+  --color-warning:#964219;--color-warning-highlight:#ddcfc6;
+  --color-gold:#d19900;--color-gold-highlight:#e9e0c6;
+  --color-blue:#006494;--color-blue-highlight:#c6d8e4;
+  --color-orange:#da7101;
+  --shadow-sm:0 1px 2px oklch(0.2 0.01 80/.06);
+  --shadow-md:0 4px 12px oklch(0.2 0.01 80/.08);
+  --shadow-lg:0 12px 32px oklch(0.2 0.01 80/.12);
+  --radius-sm:0.375rem;--radius-md:0.5rem;--radius-lg:0.75rem;--radius-xl:1rem;--radius-full:9999px;
+  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-5:1.25rem;
+  --space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;--space-12:3rem;--space-16:4rem;
+  --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);--text-sm:clamp(.875rem,.8rem + .35vw,1rem);
+  --text-base:clamp(1rem,.95rem + .25vw,1.125rem);--text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);
+  --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+  --font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --transition-interactive:180ms cubic-bezier(0.16,1,0.3,1);
+}
+[data-theme="dark"]{
+  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
+  --color-surface-offset:#1d1c1a;--color-surface-dynamic:#2d2c2a;
+  --color-divider:#262523;--color-border:#393836;
+  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
+  --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-highlight:#313b3b;
+  --color-success:#6daa45;--color-success-hover:#4d8f25;--color-success-highlight:#3a4435;
+  --color-error:#d163a7;--color-error-hover:#b9478f;--color-error-highlight:#4c3d46;
+  --color-warning:#bb653b;--color-warning-highlight:#564942;
+  --color-gold:#e8af34;--color-gold-highlight:#4d4332;
+  --color-blue:#5591c7;--color-blue-highlight:#3a4550;
+  --color-orange:#fdab43;
+  --shadow-sm:0 1px 2px oklch(0 0 0/.2);--shadow-md:0 4px 12px oklch(0 0 0/.3);--shadow-lg:0 12px 32px oklch(0 0 0/.4);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme]){
+  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
+  --color-surface-offset:#1d1c1a;--color-surface-dynamic:#2d2c2a;
+  --color-divider:#262523;--color-border:#393836;
+  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
+  --color-primary:#4f98a3;--color-success:#6daa45;--color-error:#d163a7;
+  --color-warning:#bb653b;--color-gold:#e8af34;--color-blue:#5591c7;--color-orange:#fdab43;
+}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);line-height:1.6}
+img,svg{display:block;max-width:100%}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+a,button,[role=button],input,select{transition:color var(--transition-interactive),background var(--transition-interactive),border-color var(--transition-interactive),box-shadow var(--transition-interactive)}
+input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:var(--radius-sm)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* === LAYOUT === */
+.app{display:grid;grid-template-columns:240px 1fr;grid-template-rows:auto 1fr;min-height:100dvh}
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:var(--space-4);padding:var(--space-3) var(--space-6);background:var(--color-surface);border-bottom:1px solid var(--color-border);position:sticky;top:0;z-index:100}
+.sidebar{background:var(--color-surface);border-right:1px solid var(--color-border);padding:var(--space-4) 0;display:flex;flex-direction:column;gap:var(--space-1);overflow-y:auto;position:sticky;top:49px;height:calc(100dvh - 49px)}
+.main{padding:var(--space-6);overflow-x:hidden;display:flex;flex-direction:column;gap:var(--space-6)}
+
+/* === TOPBAR === */
+.logo{display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-sm);font-weight:700;letter-spacing:-.02em}
+.logo svg{color:var(--color-primary)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:var(--space-3)}
+.theme-btn{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);border:1px solid var(--color-border)}
+.theme-btn:hover{background:var(--color-surface-dynamic);color:var(--color-text)}
+.live-badge{display:flex;align-items:center;gap:var(--space-1);font-size:var(--text-xs);color:var(--color-success);font-weight:600;background:var(--color-success-highlight);padding:var(--space-1) var(--space-2);border-radius:var(--radius-full)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--color-success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* === SIDEBAR === */
+.sidebar-section{padding:var(--space-3) var(--space-4) var(--space-1);font-size:var(--text-xs);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-faint)}
+.nav-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-4);font-size:var(--text-sm);color:var(--color-text-muted);cursor:pointer;border-radius:0}
+.nav-item:hover{background:var(--color-surface-dynamic);color:var(--color-text)}
+.nav-item.active{background:var(--color-primary-highlight);color:var(--color-primary);font-weight:500}
+[data-theme="dark"] .nav-item.active{background:var(--color-primary-highlight);color:var(--color-primary)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+
+/* === SEARCH BAR === */
+.search-row{display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap}
+.search-input-wrap{position:relative;flex:1;min-width:200px}
+.search-input-wrap svg{position:absolute;left:var(--space-3);top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--color-text-faint)}
+.search-input{width:100%;padding:var(--space-2) var(--space-3) var(--space-2) var(--space-8);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);color:var(--color-text)}
+.search-input:focus{outline:2px solid var(--color-primary);outline-offset:0;border-color:var(--color-primary)}
+.search-input::placeholder{color:var(--color-text-faint)}
+.btn{display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:500;cursor:pointer;border:none}
+.btn-primary{background:var(--color-primary);color:#fff}
+.btn-primary:hover{background:var(--color-primary-hover)}
+.btn-ghost{background:transparent;border:1px solid var(--color-border);color:var(--color-text-muted)}
+.btn-ghost:hover{background:var(--color-surface-dynamic);color:var(--color-text)}
+
+/* === KPI CARDS === */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-4)}
+.kpi-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4);box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:var(--text-xs);color:var(--color-text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-2)}
+.kpi-value{font-family:var(--font-mono);font-size:var(--text-xl);font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)}
+.up{color:var(--color-success)}.down{color:var(--color-error)}.neutral{color:var(--color-text-muted)}
+
+/* === SIGNAL TABLE === */
+.section-header{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.section-title{font-size:var(--text-lg);font-weight:600}
+.table-wrap{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--color-surface-offset)}
+th{padding:var(--space-3) var(--space-4);text-align:left;font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--color-border);white-space:nowrap}
+td{padding:var(--space-3) var(--space-4);font-size:var(--text-sm);border-bottom:1px solid var(--color-divider);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--color-surface-dynamic)}
+.signal-badge{display:inline-flex;align-items:center;gap:var(--space-1);padding:2px var(--space-2);border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:700;letter-spacing:.03em}
+.signal-buy{background:var(--color-success-highlight);color:var(--color-success)}
+.signal-sell{background:var(--color-error-highlight);color:var(--color-error)}
+.signal-hold{background:var(--color-gold-highlight);color:var(--color-gold)}
+.signal-strong-buy{background:var(--color-primary-highlight);color:var(--color-primary)}
+.strength-bar{height:6px;border-radius:var(--radius-full);background:var(--color-surface-dynamic);overflow:hidden;min-width:60px}
+.strength-fill{height:100%;border-radius:var(--radius-full);transition:width .6s cubic-bezier(0.16,1,0.3,1)}
+
+/* === CHART CARDS === */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:var(--space-4)}
+.chart-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-5);box-shadow:var(--shadow-sm)}
+.chart-title{font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)}
+.chart-sub{font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)}
+.chart-wrap{position:relative;height:180px}
+
+/* === INDICATOR PANEL === */
+.indicator-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--space-4)}
+.indicator-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4);box-shadow:var(--shadow-sm)}
+.indicator-name{font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted);margin-bottom:var(--space-2)}
+.indicator-value{font-family:var(--font-mono);font-size:var(--text-lg);font-weight:600}
+.indicator-gauge{margin-top:var(--space-3);height:8px;border-radius:var(--radius-full);background:var(--color-surface-dynamic);overflow:hidden}
+.indicator-fill{height:100%;border-radius:var(--radius-full);transition:width .8s cubic-bezier(0.16,1,0.3,1)}
+.indicator-label{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)}
+
+/* === LEGEND / INFO BOX === */
+.info-box{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-5);box-shadow:var(--shadow-sm)}
+.info-title{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-4)}
+.indicator-def{display:grid;grid-template-columns:auto 1fr;gap:var(--space-2) var(--space-4);align-items:start;padding:var(--space-3) 0;border-bottom:1px solid var(--color-divider)}
+.indicator-def:last-child{border-bottom:none}
+.def-tag{font-family:var(--font-mono);font-size:var(--text-xs);font-weight:700;padding:2px var(--space-2);border-radius:var(--radius-sm);background:var(--color-primary-highlight);color:var(--color-primary);white-space:nowrap;align-self:start;margin-top:2px}
+.def-text{font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.5}
+.def-text strong{color:var(--color-text);display:block;margin-bottom:2px}
+
+/* === DISCLAIMER === */
+.disclaimer{background:var(--color-warning-highlight);border:1px solid oklch(from var(--color-warning) l c h/.3);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);font-size:var(--text-xs);color:var(--color-warning);display:flex;align-items:flex-start;gap:var(--space-2)}
+.disclaimer svg{width:14px;height:14px;flex-shrink:0;margin-top:2px}
+
+/* === FILTER CHIPS === */
+.filter-row{display:flex;gap:var(--space-2);flex-wrap:wrap}
+.chip{padding:var(--space-1) var(--space-3);border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:500;border:1px solid var(--color-border);color:var(--color-text-muted);cursor:pointer;background:transparent}
+.chip:hover{background:var(--color-surface-dynamic);color:var(--color-text)}
+.chip.active{background:var(--color-primary-highlight);color:var(--color-primary);border-color:transparent}
+
+/* === RESPONSIVE === */
+@media(max-width:768px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .charts-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-label="StockPulse logo">
+        <rect width="28" height="28" rx="7" fill="currentColor" opacity=".12"/>
+        <polyline points="4,20 9,12 13,16 18,8 24,14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="24" cy="14" r="2.5" fill="currentColor"/>
+      </svg>
+      StockPulse
+    </div>
+    <div class="live-badge"><span class="live-dot"></span> <span id="live-badge-text">Loading…</span></div>
+    <div class="topbar-right">
+      <span style="font-size:var(--text-xs);color:var(--color-text-muted)" id="clock"></span>
+      <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" aria-label="Main navigation">
+    <span class="sidebar-section">Dashboard</span>
+    <div class="nav-item active" onclick="showSection('signals')"><i data-lucide="zap" style="width:16px;height:16px"></i> Signal Scanner</div>
+    <div class="nav-item" onclick="showSection('charts')"><i data-lucide="bar-chart-2" style="width:16px;height:16px"></i> Price Charts</div>
+    <div class="nav-item" onclick="showSection('indicators')"><i data-lucide="activity" style="width:16px;height:16px"></i> Indicators</div>
+    <span class="sidebar-section" style="margin-top:var(--space-4)">Learn</span>
+    <div class="nav-item" onclick="showSection('learn')"><i data-lucide="book-open" style="width:16px;height:16px"></i> How It Works</div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="main-content">
+
+    <!-- DISCLAIMER -->
+    <div class="disclaimer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span><strong>Educational purpose only.</strong> Signals are computed from end-of-day NSE prices and standard technical indicators. It is NOT financial advice. Do your own research before investing. Algo indicators are not 100% accurate — always apply judgment.</span>
+    </div>
+
+    <!-- SIGNALS SECTION -->
+    <section id="section-signals">
+      <div class="section-header">
+        <h1 class="section-title">Signal Scanner</h1>
+        <div style="display:flex;gap:var(--space-2)">
+          <button class="btn btn-ghost" onclick="refreshData()"><i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Refresh</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="kpi-grid"></div>
+
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <i data-lucide="search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--color-text-faint)"></i>
+          <input type="text" class="search-input" placeholder="Search symbol... e.g. RELIANCE" id="search-box" oninput="filterTable()">
+        </div>
+        <div class="filter-row">
+          <button class="chip active" onclick="filterSignal(this,'ALL')">All</button>
+          <button class="chip" onclick="filterSignal(this,'BUY')">🟢 Buy</button>
+          <button class="chip" onclick="filterSignal(this,'SELL')">🔴 Sell</button>
+          <button class="chip" onclick="filterSignal(this,'HOLD')">🟡 Hold</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Price (₹)</th>
+              <th>Change %</th>
+              <th>RSI</th>
+              <th>MACD</th>
+              <th>Signal</th>
+              <th>Strength</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody id="signals-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CHARTS SECTION -->
+    <section id="section-charts" style="display:none">
+      <div class="section-header">
+        <h2 class="section-title">Price Charts</h2>
+        <select id="chart-symbol" class="search-input" style="max-width:160px" onchange="updateCharts()"></select>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card" style="grid-column:1/-1">
+          <div class="chart-title" id="main-chart-title">Price & Volume</div>
+          <div class="chart-sub">Simulated 30-day OHLC close with volume</div>
+          <div class="chart-wrap" style="height:240px"><canvas id="priceChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">RSI (14)</div>
+          <div class="chart-sub">Oversold &lt;30 (buy zone) · Overbought &gt;70 (sell zone)</div>
+          <div class="chart-wrap"><canvas id="rsiChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">MACD</div>
+          <div class="chart-sub">Signal line crossover triggers buy/sell</div>
+          <div class="chart-wrap"><canvas id="macdChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Bollinger Bands</div>
+          <div class="chart-sub">Price near lower band = buy, upper band = sell</div>
+          <div class="chart-wrap"><canvas id="bbChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INDICATORS SECTION -->
+    <section id="section-indicators" style="display:none">
+      <div class="section-header">
+        <h2 class="section-title">Indicator Deep-Dive</h2>
+        <select id="indicator-symbol" class="search-input" style="max-width:160px" onchange="updateIndicators()"></select>
+      </div>
+      <div class="indicator-grid" id="indicator-grid"></div>
+    </section>
+
+    <!-- LEARN SECTION -->
+    <section id="section-learn" style="display:none">
+      <div class="section-header">
+        <h2 class="section-title">How Algo Indicators Work</h2>
+      </div>
+      <div class="info-box">
+        <div class="info-title">📊 The 5 Indicators Used in This App</div>
+        <div class="indicator-def">
+          <span class="def-tag">RSI</span>
+          <div class="def-text"><strong>Relative Strength Index (0–100)</strong>Measures how fast a stock has been moving. Below 30 = oversold (price may bounce UP — buy signal). Above 70 = overbought (price may fall — sell signal). Best for identifying reversal points.</div>
+        </div>
+        <div class="indicator-def">
+          <span class="def-tag">MACD</span>
+          <div class="def-text"><strong>Moving Average Convergence Divergence</strong>Compares a 12-day fast average to a 26-day slow average. When the MACD line crosses ABOVE the signal line → BUY. When it crosses BELOW → SELL. Best for trend confirmation.</div>
+        </div>
+        <div class="indicator-def">
+          <span class="def-tag">BB</span>
+          <div class="def-text"><strong>Bollinger Bands</strong>A band drawn 2 standard deviations above and below a 20-day moving average. Price touching the LOWER band = potential BUY. Touching the UPPER band = potential SELL. Squeezing bands = big move coming.</div>
+        </div>
+        <div class="indicator-def">
+          <span class="def-tag">EMA</span>
+          <div class="def-text"><strong>Exponential Moving Average (9 & 21 day)</strong>Faster-reacting average. When short EMA (9) crosses above long EMA (21) = Golden Cross → BUY. When short dips below long = Death Cross → SELL. Used as trend direction filter.</div>
+        </div>
+        <div class="indicator-def">
+          <span class="def-tag">VOL</span>
+          <div class="def-text"><strong>Volume Spike</strong>A price move with HIGH volume is more reliable. Low volume moves can be fakeouts. This app flags stocks where today's volume is 150%+ of the 10-day average — meaning smart money is likely moving.</div>
+        </div>
+      </div>
+      <div class="info-box" style="margin-top:var(--space-4)">
+        <div class="info-title">🧠 How the Signal Score is Calculated</div>
+        <div class="indicator-def">
+          <span class="def-tag">SCORE</span>
+          <div class="def-text"><strong>Composite Signal Scoring</strong>Each indicator gives a score: +1 for bullish, -1 for bearish, 0 for neutral. RSI, MACD crossover, BB position, EMA crossover, and volume spike are all scored and summed. Score ≥3 = STRONG BUY · Score 1-2 = BUY · Score 0 = HOLD · Score -1 to -2 = SELL · Score ≤-3 = STRONG SELL.</div>
+        </div>
+        <div class="indicator-def">
+          <span class="def-tag">PYTHON</span>
+          <div class="def-text"><strong>Build this in Python using yfinance + pandas-ta</strong>
+            <code style="display:block;margin-top:var(--space-2);background:var(--color-surface-dynamic);padding:var(--space-3);border-radius:var(--radius-md);font-family:var(--font-mono);font-size:11px;white-space:pre-wrap;color:var(--color-text)">import yfinance as yf
+import pandas_ta as ta
+
+df = yf.download("RELIANCE.NS", period="3mo")
+df['RSI'] = ta.rsi(df['Close'], length=14)
+df['MACD'] = ta.macd(df['Close'])['MACD_12_26_9']
+df['Signal'] = ta.macd(df['Close'])['MACDs_12_26_9']
+df['BB_upper'] = ta.bbands(df['Close'])['BBU_5_2.0']
+df['BB_lower'] = ta.bbands(df['Close'])['BBL_5_2.0']
+df['EMA9'] = ta.ema(df['Close'], length=9)
+df['EMA21'] = ta.ema(df['Close'], length=21)
+print(df.tail())</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+lucide.createIcons();
+
+// === CLOCK ===
+function updateClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock, 1000); updateClock();
+
+// === THEME TOGGLE ===
+(function(){
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  let d = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  r.setAttribute('data-theme', d);
+  if(t) t.addEventListener('click', () => {
+    d = d === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', d);
+    t.innerHTML = d === 'dark'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+    updateAllCharts();
+  });
+})();
+
+// === STOCK DATA ENGINE ===
+// Indicators are no longer computed in the browser. fetch_signals.py (run on a
+// schedule by GitHub Actions) computes RSI/MACD/EMA/Bollinger Bands on real
+// NSE EOD prices and writes signals.json next to this file. This script just
+// loads and renders that file.
+let STOCKS = [];
+let stockData = {};
+let activeSignalFilter = 'ALL';
+let priceChartInst, rsiChartInst, macdChartInst, bbChartInst;
+
+function setBadge(text, ok=true){
+  const el = document.getElementById('live-badge-text');
+  if(el) el.textContent = text;
+  const badge = el ? el.closest('.live-badge') : null;
+  if(badge) badge.style.color = ok ? '' : 'var(--color-error)';
+}
+
+async function refreshData(){
+  setBadge('Loading…');
+  let data;
+  try{
+    const res = await fetch('./signals.json?t=' + Date.now(), {cache:'no-store'});
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  }catch(err){
+    console.error('Could not load signals.json:', err);
+    setBadge('No data — run the GitHub Action', false);
+    document.getElementById('kpi-grid').innerHTML =
+      `<div class="kpi-card" style="grid-column:1/-1">
+        <div class="kpi-label">signals.json not found</div>
+        <div class="kpi-sub" style="margin-top:var(--space-2)">
+          Run the "Update Stock Signals" workflow in your repo's Actions tab (or run
+          <code>python fetch_signals.py</code> locally) to generate it, then refresh.
+        </div>
+      </div>`;
+    return;
+  }
+
+  stockData = data.stocks || {};
+  STOCKS = Object.values(stockData).map(s=>({symbol:s.symbol, name:s.name, sector:s.sector}));
+
+  if(data.generated_at){
+    const d = new Date(data.generated_at);
+    setBadge('Updated ' + d.toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'}));
+  }else{
+    setBadge('Live');
+  }
+
+  renderKPIs();
+  renderTable();
+  populateSymbolSelects();
+  updateCharts();
+  updateIndicators();
+  lucide.createIcons();
+}
+
+// === RENDER KPIs ===
+function renderKPIs(){
+  const vals = Object.values(stockData);
+  const buys = vals.filter(s=>s.signal.label.includes('BUY')).length;
+  const sells = vals.filter(s=>s.signal.label.includes('SELL')).length;
+  const holds = vals.filter(s=>s.signal.label==='HOLD').length;
+  const avgRSI = (vals.reduce((a,b)=>a+b.rsi,0)/vals.length).toFixed(1);
+  const grid = document.getElementById('kpi-grid');
+  grid.innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">BUY Signals</div><div class="kpi-value up">${buys}</div><div class="kpi-sub">of ${vals.length} stocks</div></div>
+    <div class="kpi-card"><div class="kpi-label">SELL Signals</div><div class="kpi-value down">${sells}</div><div class="kpi-sub">of ${vals.length} stocks</div></div>
+    <div class="kpi-card"><div class="kpi-label">HOLD</div><div class="kpi-value neutral">${holds}</div><div class="kpi-sub">wait and watch</div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg RSI</div><div class="kpi-value ${avgRSI<40?'up':avgRSI>60?'down':'neutral'}">${avgRSI}</div><div class="kpi-sub">${avgRSI<40?'Market Oversold':avgRSI>60?'Market Overbought':'Neutral'}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Stocks Tracked</div><div class="kpi-value">${vals.length}</div><div class="kpi-sub">NSE EOD data</div></div>
+  `;
+}
+
+// === RENDER TABLE ===
+let currentSignalFilter = 'ALL';
+function filterSignal(el, filter){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentSignalFilter = filter;
+  renderTable();
+}
+function filterTable(){ renderTable(); }
+
+function renderTable(){
+  const tbody = document.getElementById('signals-tbody');
+  const q = (document.getElementById('search-box').value||'').toUpperCase();
+  let rows = Object.values(stockData);
+  if(q) rows = rows.filter(s=>s.symbol.includes(q)||s.name.toUpperCase().includes(q));
+  if(currentSignalFilter!=='ALL') rows = rows.filter(s=>s.signal.label.includes(currentSignalFilter));
+
+  tbody.innerHTML = rows.map(s=>{
+    const chCls = s.change>=0?'up':'down';
+    const chIcon = s.change>=0?'▲':'▼';
+    const strColor = s.signal.score>=1?'var(--color-success)':s.signal.score<=-1?'var(--color-error)':'var(--color-gold)';
+    const volRatio = (s.volume/s.avgVol*100).toFixed(0);
+    const volClass = volRatio>=150?'up':volRatio<70?'down':'neutral';
+    return `<tr>
+      <td><strong style="font-size:var(--text-xs);letter-spacing:.03em">${s.symbol}</strong><br><span style="color:var(--color-text-muted);font-size:11px">${s.sector}</span></td>
+      <td style="font-family:var(--font-mono)">₹${s.price.toLocaleString('en-IN')}</td>
+      <td class="${chCls}" style="font-family:var(--font-mono)">${chIcon} ${Math.abs(s.change)}%</td>
+      <td style="font-family:var(--font-mono);color:${s.rsi<30?'var(--color-success)':s.rsi>70?'var(--color-error)':'var(--color-text)'}">${s.rsi}</td>
+      <td style="font-family:var(--font-mono);color:${s.macdVal>0?'var(--color-success)':'var(--color-error)'}">${s.macdVal>0?'+':''}${s.macdVal}</td>
+      <td><span class="signal-badge ${s.signal.cls}">${s.signal.label}</span></td>
+      <td style="min-width:80px">
+        <div class="strength-bar"><div class="strength-fill" style="width:${s.signal.strength*100}%;background:${strColor}"></div></div>
+        <span style="font-size:10px;color:var(--color-text-muted)">${(s.signal.strength*100).toFixed(0)}%</span>
+      </td>
+      <td class="${volClass}" style="font-size:var(--text-xs);font-family:var(--font-mono)">${(s.volume/1e5).toFixed(1)}L<br><span style="color:var(--color-text-faint)">${volRatio}% avg</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// === SYMBOL SELECTS ===
+function populateSymbolSelects(){
+  ['chart-symbol','indicator-symbol'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const val = sel.value;
+    sel.innerHTML = STOCKS.map(s=>`<option value="${s.symbol}">${s.symbol}</option>`).join('');
+    if(val) sel.value = val;
+  });
+}
+
+// === CHARTS ===
+function getCSS(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function isDark(){ return document.documentElement.getAttribute('data-theme')==='dark'; }
+
+function chartDefaults(){
+  const textMuted = isDark()?'#797876':'#7a7974';
+  const border = isDark()?'#393836':'#d4d1ca';
+  return { color: textMuted, borderColor: border,
+    plugins:{legend:{labels:{color:textMuted,font:{family:"'Inter',sans-serif",size:11}}},
+    tooltip:{backgroundColor:isDark()?'#201f1d':'#f9f8f5',titleColor:isDark()?'#cdccca':'#28251d',
+    bodyColor:isDark()?'#797876':'#7a7974',borderColor:border,borderWidth:1}},
+    scales:{x:{ticks:{color:textMuted,font:{size:10}},grid:{color:isDark()?'#262523':'#dcd9d5'}},
+    y:{ticks:{color:textMuted,font:{size:10}},grid:{color:isDark()?'#262523':'#dcd9d5'}}}
+  };
+}
+
+function destroyChart(inst){ if(inst){ try{inst.destroy()}catch(e){} } }
+
+function updateCharts(){
+  const sym = document.getElementById('chart-symbol').value;
+  if(!sym||!stockData[sym]) return;
+  const s = stockData[sym];
+  document.getElementById('main-chart-title').textContent = `${sym} — Price & EMA`;
+  const labels = Array.from({length:s.prices.length},(_,i)=>`D${i+1}`);
+  const d = chartDefaults();
+
+  // Price chart
+  destroyChart(priceChartInst);
+  priceChartInst = new Chart(document.getElementById('priceChart').getContext('2d'),{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'Price',data:s.prices.map(v=>+v.toFixed(2)),borderColor:'#4f98a3',backgroundColor:'rgba(79,152,163,.08)',borderWidth:2,pointRadius:0,fill:true,tension:.3},
+      {label:'EMA9',data:s.ema9.map(v=>+v.toFixed(2)),borderColor:'#6daa45',borderWidth:1.5,pointRadius:0,fill:false,tension:.3},
+      {label:'EMA21',data:s.ema21.map(v=>+v.toFixed(2)),borderColor:'#d163a7',borderWidth:1.5,pointRadius:0,fill:false,tension:.3},
+    ]},
+    options:{...d,responsive:true,maintainAspectRatio:false,animation:{duration:600}}
+  });
+
+  // RSI
+  destroyChart(rsiChartInst);
+  rsiChartInst = new Chart(document.getElementById('rsiChart').getContext('2d'),{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'RSI',data:s.rsiArr,borderColor:'#e8af34',borderWidth:2,pointRadius:0,tension:.3,fill:false},
+    ]},
+    options:{...d,responsive:true,maintainAspectRatio:false,animation:{duration:600},
+      plugins:{...d.plugins,annotation:{}},
+      scales:{...d.scales,y:{...d.scales.y,min:0,max:100,
+        ticks:{...d.scales.y.ticks,callback:v=>`${v}`},
+      }}
+    }
+  });
+
+  // MACD
+  destroyChart(macdChartInst);
+  macdChartInst = new Chart(document.getElementById('macdChart').getContext('2d'),{
+    type:'bar',
+    data:{labels, datasets:[
+      {label:'Histogram',data:s.macdData.hist,backgroundColor:s.macdData.hist.map(v=>v>0?'rgba(109,170,69,.6)':'rgba(209,99,167,.6)'),borderRadius:2},
+      {label:'MACD',data:s.macdData.macd,type:'line',borderColor:'#5591c7',borderWidth:1.5,pointRadius:0,tension:.3,fill:false},
+      {label:'Signal',data:s.macdData.signal,type:'line',borderColor:'#fdab43',borderWidth:1.5,pointRadius:0,tension:.3,fill:false},
+    ]},
+    options:{...d,responsive:true,maintainAspectRatio:false,animation:{duration:600}}
+  });
+
+  // Bollinger Bands
+  destroyChart(bbChartInst);
+  bbChartInst = new Chart(document.getElementById('bbChart').getContext('2d'),{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'Upper BB',data:s.bbData.upper,borderColor:'rgba(209,99,167,.5)',borderWidth:1,pointRadius:0,fill:false,tension:.3},
+      {label:'Middle',data:s.bbData.middle,borderColor:'rgba(79,152,163,.5)',borderWidth:1,pointRadius:0,fill:false,tension:.3},
+      {label:'Lower BB',data:s.bbData.lower,borderColor:'rgba(109,170,69,.5)',borderWidth:1,pointRadius:0,fill:'+1',backgroundColor:'rgba(79,152,163,.04)',tension:.3},
+      {label:'Price',data:s.prices.map(v=>+v.toFixed(2)),borderColor:'#cdccca',borderWidth:2,pointRadius:0,fill:false,tension:.3},
+    ]},
+    options:{...d,responsive:true,maintainAspectRatio:false,animation:{duration:600}}
+  });
+}
+
+function updateAllCharts(){ updateCharts(); }
+
+// === INDICATORS PANEL ===
+function updateIndicators(){
+  const sym = document.getElementById('indicator-symbol').value;
+  if(!sym||!stockData[sym]) return;
+  const s = stockData[sym];
+  const last = s.prices.length-1;
+  const rsi = s.rsiArr[last];
+  const macd = s.macdData.macd[last];
+  const sig = s.macdData.signal[last];
+  const bb_u = s.bbData.upper[last], bb_l = s.bbData.lower[last];
+  const p = s.prices[last];
+  const ema9 = s.ema9[last], ema21 = s.ema21[last];
+  const bbPct = bb_u&&bb_l ? Math.min(Math.max((p-bb_l)/(bb_u-bb_l),0),1)*100 : 50;
+  const volRatio = s.volume/s.avgVol;
+
+  const grid = document.getElementById('indicator-grid');
+  grid.innerHTML = `
+    <div class="indicator-card">
+      <div class="indicator-name">RSI (14)</div>
+      <div class="indicator-value" style="color:${rsi<30?'var(--color-success)':rsi>70?'var(--color-error)':'var(--color-text)'}">${rsi}</div>
+      <div class="indicator-gauge"><div class="indicator-fill" style="width:${rsi}%;background:${rsi<30?'var(--color-success)':rsi>70?'var(--color-error)':'var(--color-gold)'}"></div></div>
+      <div class="indicator-label">${rsi<30?'🟢 Oversold — Potential BUY':rsi>70?'🔴 Overbought — Potential SELL':'⚪ Neutral Zone'}</div>
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-name">MACD</div>
+      <div class="indicator-value" style="color:${macd>sig?'var(--color-success)':'var(--color-error)'}">${macd>0?'+':''}${macd.toFixed(2)}</div>
+      <div class="indicator-gauge"><div class="indicator-fill" style="width:${Math.min(Math.abs(macd)/50*100,100)}%;background:${macd>sig?'var(--color-success)':'var(--color-error)'}"></div></div>
+      <div class="indicator-label">${macd>sig?'🟢 MACD > Signal — Bullish':'🔴 MACD < Signal — Bearish'}</div>
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-name">Bollinger %B</div>
+      <div class="indicator-value" style="color:${bbPct<25?'var(--color-success)':bbPct>75?'var(--color-error)':'var(--color-text)'}">${bbPct.toFixed(1)}%</div>
+      <div class="indicator-gauge"><div class="indicator-fill" style="width:${bbPct}%;background:${bbPct<25?'var(--color-success)':bbPct>75?'var(--color-error)':'var(--color-gold)'}"></div></div>
+      <div class="indicator-label">${bbPct<25?'🟢 Near Lower Band — BUY Zone':bbPct>75?'🔴 Near Upper Band — SELL Zone':'⚪ Mid Band'}</div>
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-name">EMA 9 vs 21</div>
+      <div class="indicator-value" style="color:${ema9>ema21?'var(--color-success)':'var(--color-error)'}">${ema9>ema21?'Golden':'Death'}</div>
+      <div style="margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted)">EMA9: <span style="font-family:var(--font-mono);color:var(--color-text)">₹${ema9.toFixed(1)}</span></div>
+      <div style="font-size:var(--text-xs);color:var(--color-text-muted)">EMA21: <span style="font-family:var(--font-mono);color:var(--color-text)">₹${ema21.toFixed(1)}</span></div>
+      <div class="indicator-label">${ema9>ema21?'🟢 Uptrend — Bullish':'🔴 Downtrend — Bearish'}</div>
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-name">Volume Ratio</div>
+      <div class="indicator-value" style="color:${volRatio>=1.5?'var(--color-success)':volRatio<0.7?'var(--color-error)':'var(--color-text)'}">${(volRatio*100).toFixed(0)}%</div>
+      <div class="indicator-gauge"><div class="indicator-fill" style="width:${Math.min(volRatio/2*100,100)}%;background:${volRatio>=1.5?'var(--color-success)':'var(--color-gold)'}"></div></div>
+      <div class="indicator-label">${volRatio>=1.5?'🟢 High Volume — Strong Move':volRatio<0.7?'🟡 Low Volume — Weak Signal':'⚪ Normal Volume'}</div>
+    </div>
+    <div class="indicator-card" style="background:var(--color-primary-highlight);border-color:transparent">
+      <div class="indicator-name">Composite Score</div>
+      <div class="indicator-value" style="color:${s.signal.score>=1?'var(--color-success)':s.signal.score<=-1?'var(--color-error)':'var(--color-gold)'}">${s.signal.score>0?'+':''}${s.signal.score} / 5</div>
+      <div style="margin-top:var(--space-3)"><span class="signal-badge ${s.signal.cls}" style="font-size:var(--text-sm);padding:var(--space-1) var(--space-3)">${s.signal.label}</span></div>
+      <div class="indicator-label" style="margin-top:var(--space-2)">${s.signal.signals.join(' · ')||'No strong signals'}</div>
+    </div>
+  `;
+}
+
+// === SECTION NAVIGATION ===
+const sections = ['signals','charts','indicators','learn'];
+function showSection(id){
+  sections.forEach(s=>{
+    document.getElementById(`section-${s}`).style.display = s===id?'':'none';
+  });
+  document.querySelectorAll('.nav-item').forEach((el,i)=>{
+    el.classList.toggle('active', i===sections.indexOf(id));
+  });
+  if(id==='charts') updateCharts();
+  if(id==='indicators') updateIndicators();
+  lucide.createIcons();
+}
+
+// === INIT ===
+refreshData();
+
+// Re-check signals.json every 5 minutes — harmless if it hasn't changed since
+// EOD data only updates once a day, but picks up a fresh run automatically.
+setInterval(refreshData, 5 * 60 * 1000);
+</script>
+</body>
+</html>
