@@ -1,0 +1,37 @@
+name: Update Stock Signals
+
+on:
+  schedule:
+    # 11:00 UTC = 4:30 PM IST, Monday-Friday — an hour after NSE closes (3:30 PM IST)
+    # so the day's EOD data has settled on Yahoo Finance.
+    - cron: "0 11 * * 1-5"
+  workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
+
+permissions:
+  contents: write   # needed so the workflow can commit signals.json back to the repo
+
+jobs:
+  update-signals:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch signals
+        run: python fetch_signals.py
+
+      - name: Commit and push signals.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add signals.json
+          git diff --staged --quiet || git commit -m "Update signals $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
