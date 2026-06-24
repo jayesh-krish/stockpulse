@@ -165,6 +165,23 @@ tbody tr:hover{background:var(--color-surface-dynamic)}
 .chip:hover{background:var(--color-surface-dynamic);color:var(--color-text)}
 .chip.active{background:var(--color-primary-highlight);color:var(--color-primary);border-color:transparent}
 
+/* === ADVANCED FILTER PANEL === */
+.filter-panel{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4);margin-top:var(--space-3);display:flex;flex-wrap:wrap;gap:var(--space-5);align-items:flex-end}
+.filter-group{display:flex;flex-direction:column;gap:var(--space-1);min-width:140px}
+.filter-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-faint)}
+.filter-select{padding:var(--space-1) var(--space-3);background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-xs);color:var(--color-text);cursor:pointer}
+.filter-range{display:flex;gap:var(--space-2);align-items:center}
+.filter-range input{width:62px;padding:var(--space-1) var(--space-2);background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-xs);color:var(--color-text);font-family:var(--font-mono)}
+.filter-range span{font-size:var(--text-xs);color:var(--color-text-faint)}
+.filter-badge{display:inline-flex;align-items:center;gap:4px;padding:1px var(--space-2);border-radius:var(--radius-full);background:var(--color-primary-highlight);color:var(--color-primary);font-size:10px;font-weight:600}
+
+/* === SORTABLE HEADERS === */
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--color-text)}
+th.sort-asc::after{content:' ↑'}
+th.sort-desc::after{content:' ↓'}
+.result-count{font-size:var(--text-xs);color:var(--color-text-muted);padding:var(--space-2) var(--space-4);background:var(--color-surface-offset);border-bottom:1px solid var(--color-border)}
+
 /* === RESPONSIVE === */
 @media(max-width:768px){
   .app{grid-template-columns:1fr}
@@ -218,27 +235,91 @@ tbody tr:hover{background:var(--color-surface-dynamic)}
     <section id="section-signals">
       <div class="section-header">
         <h1 class="section-title">Signal Scanner</h1>
-        <div style="display:flex;gap:var(--space-2)">
+        <div style="display:flex;gap:var(--space-2);align-items:center">
+          <span id="active-filter-badge" style="display:none" class="filter-badge">0 filters</span>
+          <button class="btn btn-ghost" onclick="resetFilters()" id="reset-btn" style="display:none;font-size:var(--text-xs)">✕ Reset</button>
           <button class="btn btn-ghost" onclick="refreshData()"><i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Refresh</button>
         </div>
       </div>
 
       <div class="kpi-grid" id="kpi-grid"></div>
 
-      <div class="search-row">
+      <!-- SEARCH + SIGNAL CHIPS -->
+      <div class="search-row" style="margin-top:var(--space-4)">
         <div class="search-input-wrap">
           <i data-lucide="search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--color-text-faint)"></i>
-          <input type="text" class="search-input" placeholder="Search symbol... e.g. RELIANCE" id="search-box" oninput="filterTable()">
+          <input type="text" class="search-input" placeholder="Search symbol or name…" id="search-box" oninput="applyFilters()">
         </div>
         <div class="filter-row">
-          <button class="chip active" onclick="filterSignal(this,'ALL')">All</button>
-          <button class="chip" onclick="filterSignal(this,'BUY')">🟢 Buy</button>
-          <button class="chip" onclick="filterSignal(this,'SELL')">🔴 Sell</button>
-          <button class="chip" onclick="filterSignal(this,'HOLD')">🟡 Hold</button>
+          <button class="chip active" onclick="setSignalChip(this,'ALL')">All Signals</button>
+          <button class="chip" onclick="setSignalChip(this,'STRONG BUY')">💙 Strong Buy</button>
+          <button class="chip" onclick="setSignalChip(this,'BUY')">🟢 Buy</button>
+          <button class="chip" onclick="setSignalChip(this,'HOLD')">🟡 Hold</button>
+          <button class="chip" onclick="setSignalChip(this,'SELL')">🔴 Sell</button>
         </div>
       </div>
 
-      <div class="table-wrap">
+      <!-- ADVANCED FILTER PANEL -->
+      <div class="filter-panel">
+        <div class="filter-group">
+          <span class="filter-label">RSI Range</span>
+          <div class="filter-range">
+            <input type="number" id="rsi-min" placeholder="0" min="0" max="100" oninput="applyFilters()">
+            <span>–</span>
+            <input type="number" id="rsi-max" placeholder="100" min="0" max="100" oninput="applyFilters()">
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">RSI Zone</span>
+          <select class="filter-select" id="rsi-zone" onchange="applyFilters()">
+            <option value="">Any</option>
+            <option value="oversold">Oversold (&lt;30)</option>
+            <option value="neutral">Neutral (30–70)</option>
+            <option value="overbought">Overbought (&gt;70)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Volume vs Avg</span>
+          <select class="filter-select" id="vol-filter" onchange="applyFilters()">
+            <option value="">Any</option>
+            <option value="high">High (&gt;150%)</option>
+            <option value="normal">Normal (70–150%)</option>
+            <option value="low">Low (&lt;70%)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">MACD</span>
+          <select class="filter-select" id="macd-filter" onchange="applyFilters()">
+            <option value="">Any</option>
+            <option value="bull">Bullish (MACD &gt; 0)</option>
+            <option value="bear">Bearish (MACD &lt; 0)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Day Change</span>
+          <select class="filter-select" id="change-filter" onchange="applyFilters()">
+            <option value="">Any</option>
+            <option value="up">Up (&gt;0%)</option>
+            <option value="down">Down (&lt;0%)</option>
+            <option value="big-up">Big Up (&gt;2%)</option>
+            <option value="big-down">Big Down (&lt;-2%)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Sort By</span>
+          <select class="filter-select" id="sort-by" onchange="applyFilters()">
+            <option value="score-desc">Signal (Strong first)</option>
+            <option value="rsi-asc">RSI Low→High</option>
+            <option value="rsi-desc">RSI High→Low</option>
+            <option value="vol-desc">Volume (High first)</option>
+            <option value="change-desc">Change % (Top gainers)</option>
+            <option value="change-asc">Change % (Top losers)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:var(--space-3)">
+        <div class="result-count" id="result-count">Loading…</div>
         <table>
           <thead>
             <tr>
@@ -452,23 +533,120 @@ function renderKPIs(){
   `;
 }
 
-// === RENDER TABLE ===
+// === FILTER & SORT ENGINE ===
 let currentSignalFilter = 'ALL';
-function filterSignal(el, filter){
+
+function setSignalChip(el, filter){
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
   currentSignalFilter = filter;
-  renderTable();
+  applyFilters();
 }
-function filterTable(){ renderTable(); }
 
-function renderTable(){
-  const tbody = document.getElementById('signals-tbody');
-  const q = (document.getElementById('search-box').value||'').toUpperCase();
+// keep old alias so nothing else breaks
+function filterTable(){ applyFilters(); }
+function filterSignal(el, filter){ setSignalChip(el, filter); }
+
+function applyFilters(){
+  const q        = (document.getElementById('search-box').value||'').toUpperCase();
+  const rsiMin   = parseFloat(document.getElementById('rsi-min').value);
+  const rsiMax   = parseFloat(document.getElementById('rsi-max').value);
+  const rsiZone  = document.getElementById('rsi-zone').value;
+  const volF     = document.getElementById('vol-filter').value;
+  const macdF    = document.getElementById('macd-filter').value;
+  const changeF  = document.getElementById('change-filter').value;
+  const sortBy   = document.getElementById('sort-by').value;
+
   let rows = Object.values(stockData);
-  if(q) rows = rows.filter(s=>s.symbol.includes(q)||s.name.toUpperCase().includes(q));
-  if(currentSignalFilter!=='ALL') rows = rows.filter(s=>s.signal.label.includes(currentSignalFilter));
 
+  // text search
+  if(q) rows = rows.filter(s=>s.symbol.includes(q)||s.name.toUpperCase().includes(q));
+
+  // signal chip
+  if(currentSignalFilter!=='ALL') rows = rows.filter(s=>s.signal.label===currentSignalFilter);
+
+  // RSI numeric range
+  if(!isNaN(rsiMin)) rows = rows.filter(s=>s.rsi>=rsiMin);
+  if(!isNaN(rsiMax)) rows = rows.filter(s=>s.rsi<=rsiMax);
+
+  // RSI zone
+  if(rsiZone==='oversold')   rows = rows.filter(s=>s.rsi<30);
+  if(rsiZone==='neutral')    rows = rows.filter(s=>s.rsi>=30&&s.rsi<=70);
+  if(rsiZone==='overbought') rows = rows.filter(s=>s.rsi>70);
+
+  // volume
+  if(volF){
+    rows = rows.filter(s=>{
+      const r = s.volume/s.avgVol*100;
+      if(volF==='high')   return r>150;
+      if(volF==='low')    return r<70;
+      if(volF==='normal') return r>=70&&r<=150;
+    });
+  }
+
+  // MACD
+  if(macdF==='bull') rows = rows.filter(s=>s.macdVal>0);
+  if(macdF==='bear') rows = rows.filter(s=>s.macdVal<0);
+
+  // Day change
+  if(changeF==='up')       rows = rows.filter(s=>s.change>0);
+  if(changeF==='down')     rows = rows.filter(s=>s.change<0);
+  if(changeF==='big-up')   rows = rows.filter(s=>s.change>2);
+  if(changeF==='big-down') rows = rows.filter(s=>s.change<-2);
+
+  // Sort
+  rows.sort((a,b)=>{
+    if(sortBy==='rsi-asc')      return (a.rsi||0)-(b.rsi||0);
+    if(sortBy==='rsi-desc')     return (b.rsi||0)-(a.rsi||0);
+    if(sortBy==='vol-desc')     return b.volume-a.volume;
+    if(sortBy==='change-desc')  return b.change-a.change;
+    if(sortBy==='change-asc')   return a.change-b.change;
+    return b.signal.score-a.signal.score; // score-desc default
+  });
+
+  // Count active filters for badge
+  let activeCount = 0;
+  if(currentSignalFilter!=='ALL') activeCount++;
+  if(!isNaN(rsiMin)||!isNaN(rsiMax)) activeCount++;
+  if(rsiZone) activeCount++;
+  if(volF) activeCount++;
+  if(macdF) activeCount++;
+  if(changeF) activeCount++;
+  const badge = document.getElementById('active-filter-badge');
+  const resetBtn = document.getElementById('reset-btn');
+  if(badge){ badge.textContent=`${activeCount} filter${activeCount!==1?'s':''} active`; badge.style.display=activeCount?'':'none'; }
+  if(resetBtn) resetBtn.style.display=activeCount?'':'none';
+
+  // Result count
+  const all = Object.values(stockData).length;
+  const rc = document.getElementById('result-count');
+  if(rc) rc.textContent = rows.length===all ? `Showing all ${all} stocks` : `Showing ${rows.length} of ${all} stocks`;
+
+  renderRows(rows);
+}
+
+function resetFilters(){
+  document.getElementById('search-box').value='';
+  document.getElementById('rsi-min').value='';
+  document.getElementById('rsi-max').value='';
+  document.getElementById('rsi-zone').value='';
+  document.getElementById('vol-filter').value='';
+  document.getElementById('macd-filter').value='';
+  document.getElementById('change-filter').value='';
+  document.getElementById('sort-by').value='score-desc';
+  currentSignalFilter='ALL';
+  document.querySelectorAll('.chip').forEach((c,i)=>c.classList.toggle('active',i===0));
+  applyFilters();
+}
+
+function renderTable(){ applyFilters(); }
+
+function renderRows(rows){
+  const tbody = document.getElementById('signals-tbody');
+  if(!rows.length){
+    tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:var(--space-8);color:var(--color-text-muted)">No stocks match your filters</td></tr>`;
+    return;
+  }
   tbody.innerHTML = rows.map(s=>{
     const chCls = s.change>=0?'up':'down';
     const chIcon = s.change>=0?'▲':'▼';
