@@ -6,9 +6,8 @@ cancel-in-progress: false
 
 on:
 schedule:
-# 11:00 UTC = 4:30 PM IST, Monday-Friday
 - cron: "0 11 * * 1-5"
-workflow_dispatch: {}
+workflow_dispatch:
 
 permissions:
 contents: write
@@ -44,12 +43,12 @@ steps:
 
       git add signals.json
 
-      # Exit if there are no changes
+      # Exit if no changes
       git diff --staged --quiet && exit 0
 
       git commit -m "Update signals $(date -u +'%Y-%m-%d %H:%M UTC')"
 
-      # Sync with latest main branch
+      # Pull latest changes
       git pull --rebase origin main
 
       # Push changes
