@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T17:24:09.443762+00:00",
+  "generated_at": "2026-10-20T15:36:32.035070+00:00",
   "stocks": {
     "ADANIENT": {
       "symbol": "ADANIENT",
@@ -7,7 +7,7 @@
       "change": -1.28,
       "rsi": 39,
       "macdVal": -81.23,
-      "volume": 854092,
+      "volume": 854302,
       "avgVol": 1551395,
       "prices": [
         2901.0,
@@ -361,7 +361,7 @@
       "change": 0.87,
       "rsi": 53,
       "macdVal": 2.85,
-      "volume": 2526316,
+      "volume": 2526448,
       "avgVol": 3020606,
       "prices": [
         1706.5,
@@ -716,7 +716,7 @@
       "change": -2.41,
       "rsi": 24,
       "macdVal": -260.81,
-      "volume": 422417,
+      "volume": 422465,
       "avgVol": 706051,
       "prices": [
         8692.0,
@@ -1071,7 +1071,7 @@
       "change": -0.05,
       "rsi": 38,
       "macdVal": -47.89,
-      "volume": 497370,
+      "volume": 497488,
       "avgVol": 633753,
       "prices": [
         2541.6,
@@ -1425,7 +1425,7 @@
       "change": -4.19,
       "rsi": 57,
       "macdVal": 6.41,
-      "volume": 12761304,
+      "volume": 12762071,
       "avgVol": 6743941,
       "prices": [
         1267.0,
@@ -1779,7 +1779,7 @@
       "change": -1.13,
       "rsi": 35,
       "macdVal": -317.76,
-      "volume": 110830,
+      "volume": 110832,
       "avgVol": 310082,
       "prices": [
         11920.0,
@@ -2133,7 +2133,7 @@
       "change": -2.52,
       "rsi": 42,
       "macdVal": -18.3,
-      "volume": 8307809,
+      "volume": 8308852,
       "avgVol": 7847890,
       "prices": [
         1049.0,
@@ -2487,7 +2487,7 @@
       "change": -1.68,
       "rsi": 39,
       "macdVal": -45.75,
-      "volume": 969235,
+      "volume": 969243,
       "avgVol": 981129,
       "prices": [
         1992.1,
@@ -2841,7 +2841,7 @@
       "change": 0.09,
       "rsi": 42,
       "macdVal": -5.9,
-      "volume": 5415423,
+      "volume": 5419051,
       "avgVol": 10172073,
       "prices": [
         408.6,
@@ -3195,7 +3195,7 @@
       "change": -1.56,
       "rsi": 64,
       "macdVal": 1.67,
-      "volume": 8585764,
+      "volume": 8586339,
       "avgVol": 7916788,
       "prices": [
         1869.0,
@@ -3549,7 +3549,7 @@
       "change": -0.08,
       "rsi": 31,
       "macdVal": -19.74,
-      "volume": 1387203,
+      "volume": 1387215,
       "avgVol": 934860,
       "prices": [
         1394.7,
@@ -3903,7 +3903,7 @@
       "change": -1.32,
       "rsi": 41,
       "macdVal": -0.71,
-      "volume": 3093998,
+      "volume": 3094405,
       "avgVol": 6741597,
       "prices": [
         414.8,
@@ -4257,7 +4257,7 @@
       "change": 0.77,
       "rsi": 55,
       "macdVal": 12.31,
-      "volume": 1023834,
+      "volume": 1023837,
       "avgVol": 2290861,
       "prices": [
         1155.0,
@@ -4611,7 +4611,7 @@
       "change": 0.89,
       "rsi": 55,
       "macdVal": -98.0,
-      "volume": 490127,
+      "volume": 490129,
       "avgVol": 385474,
       "prices": [
         7690.0,
@@ -4965,7 +4965,7 @@
       "change": -1.57,
       "rsi": 42,
       "macdVal": -0.63,
-      "volume": 17848709,
+      "volume": 17850721,
       "avgVol": 21352242,
       "prices": [
         324.8,
@@ -5674,7 +5674,7 @@
       "change": -0.01,
       "rsi": 71,
       "macdVal": 23.17,
-      "volume": 3992586,
+      "volume": 3994293,
       "avgVol": 4507241,
       "prices": [
         1307.36,
@@ -6030,7 +6030,7 @@
       "change": -2.31,
       "rsi": 47,
       "macdVal": -1.51,
-      "volume": 33521732,
+      "volume": 33524133,
       "avgVol": 30961951,
       "prices": [
         706.65,
@@ -6385,7 +6385,7 @@
       "change": -1.36,
       "rsi": 58,
       "macdVal": 2.88,
-      "volume": 1519888,
+      "volume": 1519939,
       "avgVol": 4274215,
       "prices": [
         533.5,
@@ -6739,7 +6739,7 @@
       "change": 0.1,
       "rsi": 42,
       "macdVal": -59.35,
-      "volume": 366027,
+      "volume": 366042,
       "avgVol": 520855,
       "prices": [
         5308.5,
@@ -7093,7 +7093,7 @@
       "change": -0.83,
       "rsi": 34,
       "macdVal": -26.52,
-      "volume": 2006602,
+      "volume": 2007016,
       "avgVol": 4210128,
       "prices": [
         1010.0,
@@ -7447,7 +7447,7 @@
       "change": -2.14,
       "rsi": 44,
       "macdVal": -25.22,
-      "volume": 1225670,
+      "volume": 1226363,
       "avgVol": 1488226,
       "prices": [
         1962.0,
@@ -7801,7 +7801,7 @@
       "change": -1.15,
       "rsi": 66,
       "macdVal": 0.22,
-      "volume": 25149120,
+      "volume": 25149396,
       "avgVol": 10219291,
       "prices": [
         1430.0,
@@ -8155,7 +8155,7 @@
       "change": -1.57,
       "rsi": 39,
       "macdVal": -26.64,
-      "volume": 1283729,
+      "volume": 1283832,
       "avgVol": 2730105,
       "prices": [
         1004.8,
@@ -8509,7 +8509,7 @@
       "change": -2.63,
       "rsi": 70,
       "macdVal": 11.18,
-      "volume": 13255049,
+      "volume": 13258477,
       "avgVol": 13036779,
       "prices": [
         1130.3,
@@ -8863,7 +8863,7 @@
       "change": -1.02,
       "rsi": 47,
       "macdVal": -1.43,
-      "volume": 11522059,
+      "volume": 11528925,
       "avgVol": 19956423,
       "prices": [
         263.0,
@@ -9217,7 +9217,7 @@
       "change": -1.04,
       "rsi": 41,
       "macdVal": -4.49,
-      "volume": 9208794,
+      "volume": 9223615,
       "avgVol": 13310128,
       "prices": [
         237.45,
@@ -9571,7 +9571,7 @@
       "change": 2.06,
       "rsi": 45,
       "macdVal": -20.3,
-      "volume": 3320032,
+      "volume": 3320243,
       "avgVol": 1679465,
       "prices": [
         1308.0,
@@ -9925,7 +9925,7 @@
       "change": -1.14,
       "rsi": 76,
       "macdVal": 9.15,
-      "volume": 15003825,
+      "volume": 15004260,
       "avgVol": 24968275,
       "prices": [
         421.15,
@@ -10280,7 +10280,7 @@
       "change": 0.96,
       "rsi": 41,
       "macdVal": -74.51,
-      "volume": 2331099,
+      "volume": 2331147,
       "avgVol": 1737208,
       "prices": [
         3975.0,
@@ -10634,7 +10634,7 @@
       "change": -0.48,
       "rsi": 42,
       "macdVal": -72.84,
-      "volume": 2142358,
+      "volume": 2142503,
       "avgVol": 2598772,
       "prices": [
         3150.0,
@@ -10988,7 +10988,7 @@
       "change": -0.12,
       "rsi": 38,
       "macdVal": -342.69,
-      "volume": 453824,
+      "volume": 453832,
       "avgVol": 459379,
       "prices": [
         12857.0,
@@ -11342,7 +11342,7 @@
       "change": -1.8,
       "rsi": 35,
       "macdVal": -31.01,
-      "volume": 1186969,
+      "volume": 1187523,
       "avgVol": 1922490,
       "prices": [
         1416.0,
@@ -11697,7 +11697,7 @@
       "change": -1.95,
       "rsi": 37,
       "macdVal": -4.84,
-      "volume": 7888305,
+      "volume": 7888611,
       "avgVol": 8638770,
       "prices": [
         330.9,
@@ -12051,7 +12051,7 @@
       "change": 1.35,
       "rsi": 42,
       "macdVal": -3.01,
-      "volume": 5257311,
+      "volume": 5262091,
       "avgVol": 10400135,
       "prices": [
         235.0,
@@ -12405,7 +12405,7 @@
       "change": -0.04,
       "rsi": 32,
       "macdVal": -4.72,
-      "volume": 8908610,
+      "volume": 8908653,
       "avgVol": 10437734,
       "prices": [
         265.6,
@@ -12759,7 +12759,7 @@
       "change": -0.76,
       "rsi": 51,
       "macdVal": -17.84,
-      "volume": 15568009,
+      "volume": 15572554,
       "avgVol": 14315407,
       "prices": [
         1302.5,
@@ -13467,7 +13467,7 @@
       "change": 1.15,
       "rsi": 55,
       "macdVal": -12.06,
-      "volume": 15079976,
+      "volume": 15083265,
       "avgVol": 8812749,
       "prices": [
         1023.4,
@@ -13821,7 +13821,7 @@
       "change": -1.43,
       "rsi": 41,
       "macdVal": -24.65,
-      "volume": 3408306,
+      "volume": 3408806,
       "avgVol": 4594644,
       "prices": [
         1044.2,
@@ -14175,7 +14175,7 @@
       "change": -0.9,
       "rsi": 31,
       "macdVal": -33.7,
-      "volume": 829135,
+      "volume": 829445,
       "avgVol": 1624032,
       "prices": [
         1916.0,
@@ -14529,7 +14529,7 @@
       "change": -1.27,
       "rsi": 52,
       "macdVal": -10.51,
-      "volume": 546754,
+      "volume": 546793,
       "avgVol": 1388397,
       "prices": [
         1019.2,
@@ -14883,7 +14883,7 @@
       "change": -0.83,
       "rsi": 30,
       "macdVal": -3.05,
-      "volume": 12635985,
+      "volume": 12638617,
       "avgVol": 23936701,
       "prices": [
         184.2,
@@ -15237,7 +15237,7 @@
       "change": -0.17,
       "rsi": 82,
       "macdVal": 49.12,
-      "volume": 8674856,
+      "volume": 8676373,
       "avgVol": 5359695,
       "prices": [
         2307.83,
@@ -15593,7 +15593,7 @@
       "change": -0.61,
       "rsi": 74,
       "macdVal": 32.78,
-      "volume": 3946128,
+      "volume": 3946622,
       "avgVol": 3491698,
       "prices": [
         1598.0,
@@ -15949,7 +15949,7 @@
       "change": -0.46,
       "rsi": 26,
       "macdVal": -128.22,
-      "volume": 651489,
+      "volume": 651506,
       "avgVol": 877894,
       "prices": [
         5027.0,
@@ -16304,7 +16304,7 @@
       "change": -2.27,
       "rsi": 70,
       "macdVal": 35.56,
-      "volume": 813587,
+      "volume": 813750,
       "avgVol": 1154155,
       "prices": [
         2815.6,
@@ -16658,7 +16658,7 @@
       "change": -2.36,
       "rsi": 41,
       "macdVal": -116.55,
-      "volume": 609123,
+      "volume": 609128,
       "avgVol": 291264,
       "prices": [
         11275.0,
@@ -17012,7 +17012,7 @@
       "change": -1.23,
       "rsi": 74,
       "macdVal": 1.69,
-      "volume": 15769608,
+      "volume": 15779196,
       "avgVol": 25630811,
       "prices": [
         175.72,
